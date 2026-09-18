@@ -13,11 +13,13 @@
 - **Cảnh báo quan trọng:** Hệ thống là sản phẩm nghiên cứu phục vụ cuộc thi khoa học dữ liệu, **KHÔNG CÓ GIÁ TRỊ THAY THẾ TƯ VẤN PHÁP LÝ CHUYÊN NGHIỆP TỪ LUẬT SƯ HOẶC CƠ QUAN NHÀ NƯỚC CÓ THẨM QUYỀN**.
 
 ## Parameter Budget Audit (< 4B)
-- `Qwen/Qwen3-Embedding-0.6B`: 595.776.512 tham số (Apache-2.0).
-- `Qwen/Qwen3-Reranker-0.6B`: 595.776.512 tham số (Apache-2.0).
-- `Qwen/Qwen3.5-2B`: 2.213.241.664 tham số (Apache-2.0).
-- `P70 LoRA Adapter`: 21.823.488 tham số (Apache-2.0).
-- **Tổng tham số toàn hệ thống:** 3.426.618.176 tham số (< 4.000.000.000).
+- Qwen/Qwen3-Embedding-0.6B: 595.776.512 tham số (Apache-2.0).
+- Qwen/Qwen3-Reranker-0.6B: 595.776.512 tham số (Apache-2.0).
+- Qwen/Qwen3.5-2B: 2.213.241.664 tham số (Apache-2.0).
+- P70 LoRA Adapter: 21.823.488 tham số (Apache-2.0).
+- **Subtotal (Neural + LoRA):** 3.426.618.176 tham số.
+- **P63 Selector (Non-neural):** HistGradientBoostingRegressor tree ensemble (100 cây, 6.030 nút cây; file: 387.527 bytes).
+- **Tổng tham số toàn hệ thống:** 3.426.618.176 neural (+ 6.030 nút cây P63), tuyệt đối tuân thủ trần < 4.000.000.000 (headroom > 573 triệu tham số, tương đương 14,33%).
 
 ## Metrics & Performance
 - Official Competition Leaderboard:

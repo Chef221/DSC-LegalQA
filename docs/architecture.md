@@ -91,10 +91,16 @@ flowchart TD
 
 ## 3. Bảng Mô Hình & Bằng Chứng Số Hiệu (Model Identification Table)
 
-| Vai Trò | Tên Mô Hình | Pinned Revision | Số Tham Số | Giấy Phép | Bằng Chứng Kiểm Toán SHA256 |
+| Vai Trò | Tên Mô Hình / Cấu Trúc | Pinned Revision / Hash | Số Tham Số / Nút Cây | Giấy Phép | Bằng Chứng Kiểm Toán SHA256 |
 |---|---|---|---:|---|---|
 | **Dense Retriever** | `Qwen/Qwen3-Embedding-0.6B` | `97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3` | 595.776.512 | Apache-2.0 | Approved BTC |
 | **Neural Reranker** | `Qwen/Qwen3-Reranker-0.6B` | `e61197ed45024b0ed8a2d74b80b4d909f1255473` | 595.776.512 | Apache-2.0 | Approved BTC |
 | **Generator Base** | `Qwen/Qwen3.5-2B` | `15852e8c16360a2fea060d615a32b45270f8a8fc` | 2.213.241.664 | Apache-2.0 | Approved BTC |
 | **Generator LoRA** | `P70 Adapter` | Weights SHA: `193913014b49e9...` | 21.823.488 | Apache-2.0 / Team | `193913014b49e9d1d431a44778903842cb8c98678fdf32bd1f3a45e6c020887c` |
-| **Evidence Selector** | `P63 Model` | Weights SHA: `1654bf0184f6be...` | Non-neural tree | Team | `1654bf0184f6be7f2bc8a715e4eba5f6d47ebc280f10481fac7a1b09bc424c38` |
+| **Subtotal Neural** | Mạng nơ-ron và LoRA | — | **3.426.618.176** | — | **PASS (< 4B)** |
+| **Evidence Selector** | `P63 Model` | Weights SHA: `1654bf0184f6be...` | 100 cây (6.030 nút cây) | Team | `1654bf0184f6be7f2bc8a715e4eba5f6d47ebc280f10481fac7a1b09bc424c38` |
+| **Tổng Hệ Thống** | **Toàn bộ pipeline sản xuất** | — | **3.426.618.176 (+ 6.030 nút cây P63)** | — | **PASS (< 4B)** |
+
+> [!NOTE]
+> Báo cáo minh bạch: P63 Selector là ensemble cây quyết định phi nơ-ron (100 cây, 6.030 nút; dung lượng pickle 387.527 bytes). Dù tính riêng hay cộng tượng trưng vào tổng tham số học, toàn bộ hệ thống vẫn an toàn dưới trần 4 tỷ tham số của Ban tổ chức.
+

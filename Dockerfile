@@ -15,6 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+# Remove incompatible torchao if present in base image
+RUN pip uninstall -y torchao 2>/dev/null || true
+
 # Install locked production environment
 COPY requirements-lock.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt

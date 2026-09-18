@@ -22,7 +22,7 @@ $$\sum \text{Params} = 595.776.512 + 595.776.512 + 2.213.241.664 + 21.823.488 = 
 - **Giới hạn quy định BTC:** $< 4.000.000.000$ tham số.
 - **Biên độ an toàn (Headroom):** $+573.381.824$ tham số ($14,33\%$ margin).
 - **Trạng thái tuân thủ:** **PASS**.
-- *Lưu ý về P63 Evidence Selector:* Mô hình lựa chọn căn cứ P63 là một bộ hồi quy `HistGradientBoostingRegressor` dạng cây quyết định (non-neural tree ensemble, kích thước file 387 KB trên đĩa, không sử dụng mạng nơ-ron). Ngay cả khi tính tượng trưng toàn bộ nút lá của ensemble, tổng số tham số học được của toàn hệ thống vẫn tuyệt đối nằm dưới ngưỡng 4 tỷ.
+- *Báo cáo minh bạch về P63 Evidence Selector:* Mô hình lựa chọn căn cứ P63 là một tập hợp cây quyết định phi nơ-ron (`HistGradientBoostingRegressor`) gồm 100 cây và 6.030 nút cây (tree nodes) trên 37 đặc trưng (kích thước file pickle: 387.527 bytes, không sử dụng mạng nơ-ron). Các nút cây/ngưỡng chia không có quy ước quy đổi 1:1 tương đương với trọng số tensor mạng nơ-ron. Ngay cả khi tính tượng trưng toàn bộ 6.030 nút cây như các tham số học độc lập, tổng độ phức tạp của toàn hệ thống vẫn là 3.426.624.206 tham số, tuyệt đối nằm dưới ngưỡng 4 tỷ.
 
 ---
 

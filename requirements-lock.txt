@@ -1,16 +1,16 @@
-# Pinned authoritative reproduction environment record for UIT DSC 2026 Task 2 (P70 Runtime)
+# Pinned authoritative production reproduction environment for UIT DSC 2026 Task 2 (vNext + P63 + P70)
+# Historical authority: Kaggle dual-T4 runner (p70_public1000_dual_t4_runner_r3.py) and Modal H100 generator
 torch==2.6.0
-transformers==4.49.0
-peft==0.14.0
-accelerate==1.4.0
-bitsandbytes==0.45.3
-safetensors==0.5.3
+transformers==5.17.0
+peft==0.20.0
+accelerate==1.15.0
+bitsandbytes==0.50.2
+safetensors==0.7.0
 sentence-transformers==3.4.1
 scikit-learn==1.6.1
 numpy==2.2.3
 pyyaml==6.0.2
 nltk==3.9.1
 pytest==8.3.4
-# Reference Modal H100 production lock for isolated P70 LoRA generation:
-# transformers==5.17.0, peft==0.20.0, accelerate==1.15.0, bitsandbytes==0.50.2
-# torchao was explicitly removed
+# Note: torchao was explicitly uninstalled/removed in the accepted production runtime to prevent PEFT conflict.
+# PyTorch runtime note: Kaggle T4x2 environment runs torch 2.6.0/2.4.0 with CUDA 12.1/12.4; Modal runs torch 2.14.0+cu130.

@@ -36,8 +36,11 @@ DECODE_CONFIG = {
 
 ## 3. Bản Đồ Tham Số và Tính Hợp Lệ Quy Chế (< 4B)
 
-- Qwen3-Embedding-0.6B: $595.776.512$
-- Qwen3-Reranker-0.6B: $595.776.512$
-- Qwen3.5-2B: $2.213.241.664$
-- P70 LoRA Adapter: $21.823.488$
-- **Tổng cộng:** $3.426.618.176 < 4.000.000.000$ (Dư dôi an toàn $573$ triệu tham số).
+- Qwen3-Embedding-0.6B: .776.512$
+- Qwen3-Reranker-0.6B: .776.512$
+- Qwen3.5-2B: .213.241.664$
+- P70 LoRA Adapter: .823.488$
+- **Subtotal (Neural + LoRA):** .426.618.176$
+- **P63 Selector (Non-neural):** $ cây quyết định (.030$ nút cây; file pickle: .527$ bytes).
+- **Tổng toàn hệ thống:** .426.618.176$ neural ($+ 6.030$ nút cây P63) $< 4.000.000.000$ (Dư dôi an toàn hơn $ triệu tham số, tương đương ,33\%$).
+

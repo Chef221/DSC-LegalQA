@@ -94,12 +94,14 @@ class GenerationEngine:
         adapter_dir: Path | str = "artifacts/p70_adapter",
         device: str = "cuda" if torch.cuda.is_available() else "cpu",
         decode_config: dict[str, Any] | None = None,
+        allow_compatibility_fallback: bool = False,
     ):
         self.base_model_id = base_model_id
         self.revision = revision
         self.adapter_dir = Path(adapter_dir)
         self.device = device
         self.decode_config = decode_config or dict(BASELINE_DECODE)
+        self.allow_compatibility_fallback = allow_compatibility_fallback
         self.model = None
         self.tokenizer = None
 
@@ -138,13 +140,20 @@ class GenerationEngine:
                     torch_dtype=torch_dtype,
                     trust_remote_code=True,
                 )
-            else:
+            elif self.allow_compatibility_fallback:
+                _LOGGER.warning("Using AutoModelForCausalLM fallback in compatibility mode (non-authoritative).")
                 from transformers import AutoModelForCausalLM
                 base = AutoModelForCausalLM.from_pretrained(
                     self.base_model_id,
                     revision=self.revision,
                     torch_dtype=torch_dtype,
                     trust_remote_code=True,
+                )
+            else:
+                raise RuntimeError(
+                    "Exact P70 production reproduction requires transformers with native Qwen3_5ForConditionalGeneration "
+                    "(canonical reproduction lock: transformers==5.17.0). "
+                    "To allow generic causal LM execution on non-authoritative environments, set allow_compatibility_fallback=True."
                 )
 
             if not self.device.startswith("cuda") or ":" in self.device:

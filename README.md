@@ -94,18 +94,22 @@ flowchart TD
 
 ## 3. Bảng Kê Ngân Sách Tham Số Toàn Hệ Thống (< 4 Tỷ)
 
-Theo quy định chính thức của Ban tổ chức UIT DSC 2026 Task 2, tổng số tham số của toàn bộ các mô hình cấu thành hệ thống phải nhỏ hơn 4 tỷ:
+Theo quy định chính thức của Ban tổ chức UIT DSC 2026 Task 2, tổng số tham số của toàn bộ các mô hình cấu thành hệ thống phải nhỏ hơn 4 tỷ (< 4B):
 
-$$\\sum \\text{Params} = 595.776.512 + 595.776.512 + 2.213.241.664 + 21.823.488 = 3.426.618.176 \\approx \\mathbf{3,43B}$$
+$$\sum \text{Params (Neural + LoRA)} = 595.776.512 + 595.776.512 + 2.213.241.664 + 21.823.488 = 3.426.618.176 \approx \mathbf{3,43B}$$
 
-| Vai Trò | Tên Mô Hình | Revision Pinned | Số Tham Số | Trạng Thái Tuân Thủ |
+| Vai Trò | Tên Mô Hình / Cấu Trúc | Revision Pinned / Artifact | Số Tham Số / Độ Phức Tạp | Trạng Thái Tuân Thủ |
 |---|---|---|---:|:---:|
 | **Dense Retriever** | `Qwen/Qwen3-Embedding-0.6B` | `97b0c614be4d...` | 595.776.512 | PASS |
 | **Neural Reranker** | `Qwen/Qwen3-Reranker-0.6B` | `e61197ed4502...` | 595.776.512 | PASS |
 | **Generator Base** | `Qwen/Qwen3.5-2B` | `15852e8c1636...` | 2.213.241.664 | PASS |
-| **Generator LoRA** | P70 LoRA Adapter | — | 21.823.488 | PASS |
-| **Evidence Selector** | P63 HGB Regressor | — | 387 KB (Tree Ensemble) | PASS |
-| **Tổng Hệ Thống** | **Toàn bộ pipeline** | — | **3.426.618.176** | **PASS (< 4B)** |
+| **Generator LoRA** | P70 LoRA Adapter | `193913014b49...` | 21.823.488 | PASS |
+| **Subtotal (Neural + LoRA)** | Mạng nơ-ron và LoRA | — | **3.426.618.176** | **PASS (< 4B)** |
+| **Evidence Selector** | `P63 HistGradientBoostingRegressor` | `1654bf0184f6...` | 100 cây (6.030 nút cây, 387.527 bytes) | PASS |
+| **Tổng Hệ Thống Đầy Đủ** | **Toàn bộ pipeline sản xuất** | — | **3.426.618.176 neural (+ 6.030 nút cây P63)** | **PASS (< 4B)** |
+
+> [!NOTE]
+> **Báo cáo minh bạch về P63 Selector:** Mô hình lựa chọn căn cứ P63 là một tập hợp cây quyết định phi nơ-ron (`HistGradientBoostingRegressor`) gồm 100 cây và tổng cộng 6.030 nút cây (tree nodes) trên 37 đặc trưng (kích thước file pickle: 387.527 bytes). Các nút cây/ngưỡng chia không có quy ước quy đổi 1:1 tương đương với trọng số tensor mạng nơ-ron. Ngay cả khi cộng trực tiếp toàn bộ 6.030 nút cây như các tham số học độc lập, tổng độ phức tạp học được của toàn hệ thống vẫn là **3.426.624.206** tham số, tuyệt đối tuân thủ quy chế < 4 tỷ tham số của Ban tổ chức với biên độ an toàn hơn 573 triệu tham số (~14,33% headroom).
 
 ---
 
