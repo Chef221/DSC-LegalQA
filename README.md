@@ -8,7 +8,7 @@
 
 DSC-LegalQA là repository tái lập hệ thống hỏi đáp pháp luật Việt Nam (LegalQA) được phát triển cho cuộc thi **UIT Data Science Challenge 2026 — Task 2**.
 
-Production pipeline cuối cùng là `vNext + P63 + P70`, kết hợp Hybrid Retrieval, neural reranking, learned evidence selection và Qwen3.5-2B + Continued-LoRA để sinh câu trả lời có trích dẫn căn cứ pháp luật.
+Production pipeline cuối cùng là `vNext + P63 + P70`, kết hợp Hybrid Retrieval, neural reranking, learned evidence selection và Qwen3.5-2B + Continued-LoRA để sinh câu trả lời grounded trên legal evidence được retrieval từ corpus.
 
 - **Production pipeline:** `vNext + P63 + P70` (Lineage: `FROZEN_P3_G2_VNEXT_P63_P70`)
 - **Kết quả official leaderboard:**

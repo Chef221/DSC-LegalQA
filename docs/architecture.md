@@ -85,7 +85,7 @@ flowchart TD
 | **Answer Control** | Packed context + question | Tạo prompt với hướng dẫn chống suy diễn `[ANSWER_CONTROL]` | Generator input prompt | Structured prompt template |
 | **Generator Engine** | Generator input prompt | `Qwen/Qwen3.5-2B` + P70 LoRA greedy decoding | Raw generated tokens | Greedy, `max_new_tokens=1536` |
 | **Duplicate Guard** | Raw generated tokens | Phát hiện và cắt suffix repetition loops bằng `token_suffix_loop_sanitizer` | Sanitized text answer | SHA256: `1d58bb1cac5b...` |
-| **Submission Builder** | Cleaned answers | Đóng gói JSON object `question_id -> {"answer": text}` | `submission.json` | UTF-8, Codabench format |
+| **Submission Builder** | Cleaned answers | Đóng gói JSON object `question_id -> {"answer": text}` | `submission.json` | UTF-8, schema nộp bài BTC |
 
 ---
 

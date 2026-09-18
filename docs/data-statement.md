@@ -1,10 +1,16 @@
 # Data Statement — DSC-LegalQA
 
-## 1. Nguồn dữ liệu
-Hệ thống tuân thủ quy định của UIT Data Science Challenge 2026:
+## 1. Nguồn dữ liệu & chính sách (Data policy)
+
+**Quy định thi đấu (Competition constraints):**
 - Chỉ sử dụng dữ liệu chính thức do BTC cung cấp.
-- Không dùng external data, không crawl web, không tự gán nhãn thủ công.
-- Không sử dụng synthetic data.
+- Không dùng external data, không crawl web.
+- Không gán nhãn thủ công (manual labeling).
+- Không augmentation từ các nguồn bên ngoài.
+
+**Triển khai trong dự án (Project implementation):**
+- Pipeline này không bổ sung external data.
+- Quá trình huấn luyện và đánh giá không sử dụng dữ liệu tổng hợp (synthetic data).
 
 ## 2. Đặc điểm ngôn ngữ & văn bản
 - Ngôn ngữ: Tiếng Việt pháp luật.

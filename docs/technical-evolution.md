@@ -43,4 +43,4 @@ Tài liệu này ghi lại quá trình hoàn thiện pipeline qua các giai đo�
 
 ## 8. Final production pipeline
 - Tích hợp liên hoàn 7 thành phần trên tạo nên pipeline hoàn chỉnh `vNext + P63 + P70`.
-- Kết quả official leaderboard trên Codabench: **METEOR = 0.486776583**, **ROUGE-L = 0.530283618**.
+- Kết quả official leaderboard: **METEOR = 0.486776583**, **ROUGE-L = 0.530283618**.

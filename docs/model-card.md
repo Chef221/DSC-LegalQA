@@ -3,7 +3,7 @@
 ## Model details
 - **Model name:** DSC-LegalQA Grounded Legal Question Answering System
 - **Pipeline:** Multi-stage Hybrid RAG (BM25 + Qwen3-Embedding-0.6B + Equal RRF + Qwen3-Reranker-0.6B Prefix20 + P63 HGB Selector + Qwen3.5-2B P70 LoRA).
-- **Tác giả:** Đội thi Chef221 — UIT Data Science Challenge 2026.
+- **Author:** Chef221 (UIT Data Science Challenge 2026).
 - **Ngày hoàn thiện:** 18/09/2026.
 - **License:** MIT License.
 

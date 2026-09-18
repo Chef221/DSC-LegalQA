@@ -13,6 +13,7 @@ Final production pipeline (Lineage: **FROZEN_P3_G2_VNEXT_P63_P70**) ghi nhận k
 | **METEOR** | **0.486776583** | Metric xếp hạng chính | NLTK METEOR trên whitespace tokens (WordNet/OMW) |
 | **ROUGE-L** | **0.530283618** | Metric phụ | Vendored ASCII-tokenized ROUGE-L (LCS macro mean) |
 
+- **Scorer provenance:** Cấu hình scorer chính thức trong `Scoring-Program-Task-LegalQA.zip` (SHA256: `4fac914203d325445a666c0c566530c962ba95b843e1988e4f37057c47447891`).
 - **Submission hash:** `ac6b796794cf3c422889620753743fa248d9ada8dd18d681f36d2e38784e1056`
 - **Số lượng câu hỏi:** 1.000 câu hỏi (Public Test).
 - **Trạng thái:** Hoàn thành 1.000/1.000 câu, 0 lỗi format, khớp 100% submission schema.

@@ -52,7 +52,7 @@ BASELINE_DECODE = {
 - **Scientific Gate:** `INCONCLUSIVE`
 - **Promotion Basis:** `OPERATOR_OVERRIDE_DEADLINE_2026-09-17`
 
-Cấu hình P70 được đưa vào final submission trước deadline và đạt kết quả xếp hạng chính thức trên Codabench:
+Cấu hình P70 được đưa vào final submission trước deadline và đạt kết quả xếp hạng chính thức trên leaderboard của BTC:
 - **METEOR:** `0.486776583`
 - **ROUGE-L:** `0.530283618`
 ---

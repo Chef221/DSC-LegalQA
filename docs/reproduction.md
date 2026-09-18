@@ -58,7 +58,7 @@ Thứ tự xử lý của pipeline:
 7. **Evidence packing:** Đóng gói context với format `[E1]`, `[E2]`... kèm thẻ `[ANSWER_CONTROL]`.
 8. **Generator:** Qwen3.5-2B + P70 LoRA sinh câu trả lời bằng greedy decoding (`max_new_tokens=1536`).
 9. **Duplicate guard:** `token_suffix_loop_sanitizer` xử lý suffix repetition loops nếu có.
-10. **Submission builder:** Format output thành `submission.json` chuẩn schema Codabench.
+10. **Submission builder:** Format output thành `submission.json` chuẩn schema nộp bài của BTC.
 
 ---
 
