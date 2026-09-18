@@ -1,0 +1,44 @@
+graph TD
+    UserQuery["Vietnamese Legal Question<br/><i>(Câu hỏi pháp luật tiếng Việt)</i>"] --> Normalization["Question Normalization<br/><i>(Chuẩn hóa văn bản NFC & thực thể pháp lý)</i>"]
+    
+    Normalization --> BM25["Sparse BM25 Retrieval<br/><i>(BM25Okapi Lexical Matching)</i>"]
+    Normalization --> Dense["Dense Vector Retrieval<br/><i>(Qwen3-Embedding-0.6B @ 97b0c61)</i>"]
+    
+    BM25 --> RRF["Equal Reciprocal Rank Fusion (k=10)<br/><i>score = 1/(10 + rank_bm25) + 1/(10 + rank_dense)</i>"]
+    Dense --> RRF
+    
+    RRF --> Top100["Top 100 Candidates Pool"]
+    
+    Top100 --> Reranker["Neural Cross-Encoder Reranker<br/><i>(Qwen3-Reranker-0.6B @ e61197e)</i><br/><b>Prefix 20 Reranked + Preserved Tail</b>"]
+    
+    Reranker --> Selector["P63 Learned Evidence Selector<br/><i>(HistGradientBoosting Regressor, 37 Features)</i>"]
+    
+    Selector --> Decision{"Threshold Check<br/>Predicted Delta >= 0.100 ?"}
+    
+    Decision -- "Yes (Delta >= 0.100)" --> Override["Action: OVERRIDE<br/><i>(Wider Top-K / Non-Article Fallback Pair)</i>"]
+    Decision -- "No (Delta < 0.100)" --> Incumbent["Action: INCUMBENT (A0)<br/><i>(Top-Ranked Retrieved Anchor Article)</i>"]
+    
+    Override --> Packing["Deterministic Evidence Packing<br/><i>([E1] ... [E2] ... Standard Markers)</i>"]
+    Incumbent --> Packing
+    
+    Packing --> Control["Answer-Control Header & System Prompt<br/><i>(Chỉ dùng căn cứ pháp lý, cấm suy diễn)</i>"]
+    
+    Control --> Generator["Grounded Generator<br/><i>Qwen/Qwen3.5-2B @ 15852e8</i><br/>+ <b>Final P70 LoRA Adapter (96 modules)</b>"]
+    
+    Generator --> Decoding["Deterministic Greedy Decoding<br/><i>(do_sample=false, num_beams=1, max_tokens=1536)</i>"]
+    
+    Decoding --> DupGuard["Production Duplicate Guard<br/><i>(token_suffix_loop_sanitizer @ 1d58bb1)</i>"]
+    
+    DupGuard --> FinalAnswer["Final Grounded Legal Answer<br/><i>(Câu trả lời văn xuôi tiếng Việt hoàn chỉnh)</i>"]
+    
+    FinalAnswer --> SubBuilder["Submission Builder<br/><i>(Codabench submission.json -> submission.zip)</i>"]
+
+    classDef primary fill:#1e3a8a,stroke:#3b82f6,stroke-width:2px,color:#ffffff;
+    classDef branch fill:#065f46,stroke:#10b981,stroke-width:2px,color:#ffffff;
+    classDef decision fill:#854d0e,stroke:#eab308,stroke-width:2px,color:#ffffff;
+    classDef finish fill:#581c87,stroke:#a855f7,stroke-width:2px,color:#ffffff;
+
+    class UserQuery,FinalAnswer,SubBuilder finish;
+    class BM25,Dense,Reranker,Generator primary;
+    class Normalization,RRF,Top100,Packing,Control,Decoding,DupGuard branch;
+    class Selector,Decision decision;
