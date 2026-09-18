@@ -1,0 +1,12 @@
+# P63 Learned Evidence Selector configuration
+selector:
+  model_file: "artifacts/p63_selector/P63_DEPLOYMENT_MODEL.pkl"
+  metadata_file: "artifacts/p63_selector/P63_DEPLOYMENT_MODEL_METADATA.json"
+  expected_model_sha256: "1654bf0184f6be7f2bc8a715e4eba5f6d47ebc280f10481fac7a1b09bc424c38"
+  expected_metadata_sha256: "ef59ed7efe1a47edf76b417dd53660eb15bfb52fc2a7bc314bb3dd58ca0e27ac"
+  feature_count: 37
+  tau_deploy: 0.100
+  model_family: "HistGradientBoostingRegressor"
+  routing:
+    incumbent_action: "INCUMBENT"
+    override_action: "OVERRIDE"

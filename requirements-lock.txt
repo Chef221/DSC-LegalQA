@@ -1,0 +1,11 @@
+# Pinned environment reproduction record for UIT DSC 2026 Task 2
+torch==2.6.0
+transformers==4.49.0
+peft==0.14.0
+sentence-transformers==3.4.1
+scikit-learn==1.6.1
+numpy==2.2.3
+pyyaml==6.0.2
+nltk==3.9.1
+safetensors==0.5.3
+pytest==8.3.4

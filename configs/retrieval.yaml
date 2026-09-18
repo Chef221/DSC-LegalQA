@@ -1,0 +1,23 @@
+# Retrieval and Ranking configuration
+retrieval:
+  bm25:
+    k1: 1.5
+    b: 0.75
+    top_k: 100
+
+  dense:
+    model_id: "Qwen/Qwen3-Embedding-0.6B"
+    revision: "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3"
+    batch_size: 32
+    top_k: 100
+
+  fusion:
+    method: "RRF"
+    rrf_constant: 10
+    top_k: 100
+
+  reranker:
+    model_id: "Qwen/Qwen3-Reranker-0.6B"
+    revision: "e61197ed45024b0ed8a2d74b80b4d909f1255473"
+    prefix_k: 20
+    preserve_tail: true

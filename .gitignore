@@ -1,0 +1,51 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Official Competition Raw Datasets (FAIL-CLOSED: NEVER COMMIT RAW DATA)
+data/train.json
+data/warmup.json
+data/public-official.json
+data/private-official.json
+data/selected-contexts.zip
+data/selected-contexts/
+data/contexts/
+*.zip
+*.bin
+*.tar.gz
+
+# Official Final 1000-Answer Submission (NEVER COMMIT FULL SUBMISSION)
+submission.json
+submission_original_p70.json
+submission_master_repair.json
+output/
+
+# Base Pretrained Models Cache (Download via Hugging Face at runtime)
+models--*
+snapshots/
+hf_cache/
+
+# Local OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Secrets & environment
+.env
+*.pem
+*.key
+token.txt

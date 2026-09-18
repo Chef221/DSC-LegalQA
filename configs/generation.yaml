@@ -1,0 +1,22 @@
+# Answer generation and post-processing configuration
+generation:
+  base_model: "Qwen/Qwen3.5-2B"
+  pinned_revision: "15852e8c16360a2fea060d615a32b45270f8a8fc"
+  adapter_dir: "artifacts/p70_adapter"
+  expected_adapter_sha256: "193913014b49e9d1d431a44778903842cb8c98678fdf32bd1f3a45e6c020887c"
+  expected_config_sha256: "2761928c3f17aa894bd2e7793db0d00a2e7c1b0821a7d864dc7bf411dc603f37"
+
+  decoding:
+    do_sample: false
+    num_beams: 1
+    max_new_tokens: 1536
+    eos_token_id: 248046
+    pad_token_id: 248044
+    use_cache: true
+
+  duplicate_guard:
+    enabled: true
+    min_cycle_len: 4
+    max_cycle_len: 64
+    min_repeats: 3
+    expected_guard_sha256: "1d58bb1cac5bef635e39500959b13e77bbd1da3d7c18ec82edeeac5e09713527"

@@ -1,0 +1,40 @@
+# Authoritative model specifications and parameter budget for DSC-LegalQA
+# Total parameter constraint: < 4,000,000,000 (strictly enforced)
+
+dense_retriever:
+  model_id: "Qwen/Qwen3-Embedding-0.6B"
+  pinned_revision: "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3"
+  parameter_count: 595776512
+  license: "Apache-2.0"
+  role: "dense_semantic_encoder"
+  source_url: "https://huggingface.co/Qwen/Qwen3-Embedding-0.6B"
+
+reranker:
+  model_id: "Qwen/Qwen3-Reranker-0.6B"
+  pinned_revision: "e61197ed45024b0ed8a2d74b80b4d909f1255473"
+  parameter_count: 595776512
+  license: "Apache-2.0"
+  role: "neural_cross_encoder"
+  source_url: "https://huggingface.co/Qwen/Qwen3-Reranker-0.6B"
+
+generator:
+  model_id: "Qwen/Qwen3.5-2B"
+  pinned_revision: "15852e8c16360a2fea060d615a32b45270f8a8fc"
+  parameter_count: 2213241664
+  license: "Apache-2.0"
+  role: "grounded_generator_base"
+  source_url: "https://huggingface.co/Qwen/Qwen3.5-2B"
+
+generator_lora:
+  adapter_name: "p2_epoch1_qlora"
+  parameter_count: 21823488
+  lora_modules: 96
+  license: "Apache-2.0 / Team-Trained Official Data"
+  role: "fine_tuned_reasoning_adapter"
+
+parameter_budget:
+  competition_limit: 4000000000
+  total_system_parameters: 3426618176
+  headroom_parameters: 573381824
+  headroom_percentage: 14.33
+  status: "PASS"
