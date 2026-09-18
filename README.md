@@ -130,7 +130,10 @@ pip install -e .
 # Kiểm tra chữ ký băm mật mã của toàn bộ 5 tạo tác sản xuất
 python scripts/verify_artifacts.py
 
-# Kiểm tra tính tương thích của môi trường Python/PyTorch/CUDA
+# Xác minh môi trường tái lập chuẩn (Strict Mode - bắt buộc cho P70 production)
+python scripts/verify_environment.py --strict
+
+# (Tùy chọn) Kiểm tra tương thích thông tin cho máy dev không cài full stack
 python scripts/verify_environment.py
 
 # Chạy bộ kiểm thử tự động

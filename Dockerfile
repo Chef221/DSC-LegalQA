@@ -1,5 +1,5 @@
 # Reproducibility Docker image for UIT Data Science Challenge 2026 Task 2
-# Base: Official PyTorch with CUDA 12.1 runtime
+# Base: Official PyTorch with CUDA 12.1 runtime (reproducibility choice; not claimed bit-identical to Kaggle host)
 FROM pytorch/pytorch:2.2.2-cuda12.1-cudnn8-runtime
 
 ENV DEBIAN_FRONTEND=noninteractive \
@@ -35,8 +35,8 @@ COPY pyproject.toml .
 # Install package in editable mode
 RUN pip install --no-cache-dir -e .
 
-# Run preflight verification
-RUN python scripts/verify_artifacts.py && python scripts/verify_environment.py
+# Run preflight verification (artifacts and strict environment lock)
+RUN python scripts/verify_artifacts.py && python scripts/verify_environment.py --strict
 
 # Create data and output mounts
 RUN mkdir -p /app/data /app/output

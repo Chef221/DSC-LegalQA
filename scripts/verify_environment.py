@@ -10,29 +10,25 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 """Authoritative environment verification for DSC-LegalQA P70 reproduction.
 
-Verifies:
-- Python version (>=3.10)
-- PyTorch and CUDA availability
-- Exact / compatible production dependencies:
-  * transformers (expected: 5.17.0)
-  * peft (expected: 0.20.0)
-  * accelerate (expected: 1.15.0)
-  * bitsandbytes (expected: 0.50.2)
-  * safetensors
-  * scikit-learn (HistGradientBoostingRegressor)
-- Disallowed packages check: torchao must be strictly absent
-- Qwen3.5 native architecture support:
-  * Qwen3_5ForConditionalGeneration must exist
-- Modes:
-  * default: informative check with compatibility warnings
-  * --strict: fail closed on any exact version mismatch or missing native class
+Proven Historical Runtime Authority (p70_public1000_dual_t4_runner_r3.py:L110):
+- transformers == 5.17.0
+- peft == 0.20.0
+- accelerate == 1.15.0
+- bitsandbytes == 0.50.2
+- torchao explicitly uninstalled / absent
+- safetensors installed (required, but unpinned in historical runner)
+- torch preinstalled by host (Kaggle Python 3.10+ / Modal; exact torch version was not pinned)
+
+Verification Modes:
+- default (informative/compatibility): logs installed versions, warns on mismatches, permits dev execution.
+- --strict (certified reproduction): fails closed (exit code 1) on any mismatch with proven historical pins.
 """
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 _LOGGER = logging.getLogger("verify_environment")
 
-# Frozen canonical production runtime package versions
-FROZEN_RUNTIME_VERSIONS: dict[str, str] = {
+# Exact proven historical production package versions
+EXACT_PROVEN_PRODUCTION_PINS: dict[str, str] = {
     "transformers": "5.17.0",
     "peft": "0.20.0",
     "accelerate": "1.15.0",
@@ -78,41 +74,41 @@ def check_packages(strict: bool = False) -> bool:
             _LOGGER.error(f"[FAIL] Required package '{pkg}' is missing!")
             success = False
 
-    # 2. Check disallowed packages (torchao must be absent)
+    # 2. Check disallowed packages (torchao must be strictly absent)
     for pkg in DISALLOWED_PACKAGES:
         try:
             importlib.import_module(pkg)
             msg = f"Disallowed package '{pkg}' is present in environment! Must be uninstalled to avoid PEFT conflict."
             if strict:
-                _LOGGER.error(f"[FAIL] {msg}")
+                _LOGGER.error(f"[FAIL-CLOSED] {msg}")
                 success = False
             else:
                 _LOGGER.warning(f"[WARNING] {msg}")
         except ImportError:
             _LOGGER.info(f"[PASS] Disallowed package '{pkg}' is absent as required.")
 
-    # 3. Check exact versions against frozen runtime lock
-    for pkg, expected_ver in FROZEN_RUNTIME_VERSIONS.items():
+    # 3. Check exact versions against proven production pins
+    for pkg, expected_ver in EXACT_PROVEN_PRODUCTION_PINS.items():
         try:
             mod = importlib.import_module(pkg)
             actual_ver = getattr(mod, "__version__", "unknown")
             if actual_ver == expected_ver:
-                _LOGGER.info(f"[PASS] Exact version lock match for {pkg}: {actual_ver}")
+                _LOGGER.info(f"[PASS] Exact proven pin match for {pkg}: {actual_ver}")
             else:
-                msg = f"Version mismatch for {pkg}: installed={actual_ver}, canonical production lock={expected_ver}"
+                msg = f"Version mismatch for {pkg}: installed={actual_ver}, proven production pin={expected_ver}"
                 if strict:
-                    _LOGGER.error(f"[FAIL-STRICT] {msg}")
+                    _LOGGER.error(f"[FAIL-CLOSED] {msg}")
                     success = False
                 else:
                     _LOGGER.warning(f"[WARNING] {msg}")
         except ImportError:
             if pkg == "bitsandbytes":
-                _LOGGER.info(f"[INFO] bitsandbytes not found (optional in CPU mode; required for quantized execution).")
+                _LOGGER.info("[INFO] bitsandbytes not found (optional in CPU mode; required for quantized GPU execution).")
                 if strict:
-                    _LOGGER.error(f"[FAIL-STRICT] bitsandbytes=={expected_ver} required in strict production mode.")
+                    _LOGGER.error(f"[FAIL-CLOSED] bitsandbytes=={expected_ver} required in strict production mode.")
                     success = False
             else:
-                _LOGGER.error(f"[FAIL] Missing package {pkg} for lock check.")
+                _LOGGER.error(f"[FAIL] Missing package {pkg} for pin check.")
                 success = False
 
     return success
@@ -121,7 +117,7 @@ def check_packages(strict: bool = False) -> bool:
 def check_torch_and_cuda() -> bool:
     try:
         import torch
-        _LOGGER.info(f"PyTorch version: {torch.__version__}")
+        _LOGGER.info(f"PyTorch version: {torch.__version__} (observed runtime host)")
         cuda_available = torch.cuda.is_available()
         _LOGGER.info(f"CUDA available: {cuda_available}")
 
@@ -150,10 +146,10 @@ def check_qwen35_compatibility(strict: bool = False) -> bool:
         if not has_native_class:
             msg = (
                 "Qwen3_5ForConditionalGeneration class is missing in installed transformers. "
-                "The canonical production runtime requires transformers == 5.17.0."
+                "Canonical reproduction lock requires transformers == 5.17.0."
             )
             if strict:
-                _LOGGER.error(f"[FAIL-STRICT] {msg}")
+                _LOGGER.error(f"[FAIL-CLOSED] {msg}")
                 return False
             else:
                 _LOGGER.warning(f"[WARNING] {msg} Falling back to generic causal LM is permitted only in compatibility mode.")
@@ -169,7 +165,7 @@ def main():
     parser.add_argument(
         "--strict",
         action="store_true",
-        help="Enforce exact canonical production versions (transformers==5.17.0, peft==0.20.0, etc.) and native Qwen3.5 class.",
+        help="Enforce exact proven production pins (transformers==5.17.0, peft==0.20.0, etc.) and native Qwen3.5 class.",
     )
     args = parser.parse_args()
 
@@ -185,7 +181,7 @@ def main():
         _LOGGER.info(f"=== [SUCCESS] Environment verification PASSED ({mode_label}) ===")
         sys.exit(0)
     else:
-        _LOGGER.error(f"=== [FAIL] Environment verification FAILED ({mode_label}) ===")
+        _LOGGER.error(f"=== [FAIL-CLOSED] Environment verification FAILED ({mode_label}) ===")
         sys.exit(1)
 
 

@@ -12,7 +12,10 @@ Trước khi thực hiện bất kỳ quy trình nào, hãy chạy hai công c�
 # 1. Xác minh tính toàn vẹn của các tệp mô hình và mã nguồn đóng băng
 python scripts/verify_artifacts.py
 
-# 2. Xác minh các gói thư viện tương thích với môi trường P70
+# 2. Xác minh môi trường tái lập chuẩn (Strict Mode - bắt buộc cho P70 production)
+python scripts/verify_environment.py --strict
+
+# (Tùy chọn) Kiểm tra thông tin tương thích cho máy phát triển
 python scripts/verify_environment.py
 ```
 
