@@ -1,38 +1,38 @@
-# Danh Sách Mô Hình Được Ban Tổ Chức Phê Duyệt (Approved Models)
+# Danh mục model được BTC phê duyệt (Approved models)
 
-> **Lưu ý nguyên tắc:** Tài liệu này tổng hợp danh mục các mô hình tiền huấn luyện và công cụ xử lý ngôn ngữ tự nhiên (NLP) được Ban tổ chức UIT Data Science Challenge 2026 công nhận và cho phép đăng ký/sử dụng cho Task 2. Việc một mô hình xuất hiện trong danh mục này biểu thị tính hợp lệ về mặt nguồn gốc; khi triển khai thực tế, toàn bộ hệ thống phải thỏa mãn điều kiện tiên quyết: **tổng số tham số của tất cả các mô hình có trọng số trong hệ thống phải dưới 4 tỷ (< 4.000.000.000)**.
+> **Lưu ý:** Tài liệu này tổng hợp danh mục các model tiền huấn luyện và công cụ NLP được BTC UIT Data Science Challenge 2026 công nhận và cho phép đăng ký/sử dụng cho Task 2. Việc một model xuất hiện trong danh mục này biểu thị tính hợp lệ về nguồn gốc; khi triển khai, toàn bộ hệ thống phải đáp ứng điều kiện: **tổng số tham số của tất cả model trong pipeline phải dưới 4 tỷ (< 4.000.000.000)**.
 
 ---
 
-## 1. Các Mô Hình Được Sử Dụng Bởi Hệ Thống Sản Xuất Cuối Cùng (vNext + P63 + P70)
+## 1. Model sử dụng trong production pipeline (vNext + P63 + P70)
 
-Bảng dưới đây liệt kê các mô hình chính thức cấu thành nên hệ thống sản xuất **FROZEN_P3_G2_VNEXT_P63_P70** đạt kết quả METEOR = **0.486776583** và ROUGE-L = **0.530283618** trên Leaderboard chính thức:
+Bảng dưới đây liệt kê các model cấu thành nên pipeline sản xuất **FROZEN_P3_G2_VNEXT_P63_P70** đạt METEOR = **0.486776583** và ROUGE-L = **0.530283618** trên official leaderboard:
 
-| Vai Trò | Tên Mô Hình / HF ID | Pinned Revision | Số Tham Số Xác Minh | Giấy Phép | Duyệt BTC | Nguồn / URL |
+| Role | Model / HF ID | Pinned revision | Parameter count | License | Trạng thái duyệt | Nguồn |
 |---|---|---|---:|---|:---:|---|
 | **Dense Retriever** | `Qwen/Qwen3-Embedding-0.6B` | `97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3` | 595.776.512 | Apache-2.0 | **ĐÃ DUYỆT** | [HuggingFace](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B) |
 | **Neural Reranker** | `Qwen/Qwen3-Reranker-0.6B` | `e61197ed45024b0ed8a2d74b80b4d909f1255473` | 595.776.512 | Apache-2.0 | **ĐÃ DUYỆT** | [HuggingFace](https://huggingface.co/Qwen/Qwen3-Reranker-0.6B) |
 | **Generator Base** | `Qwen/Qwen3.5-2B` | `15852e8c16360a2fea060d615a32b45270f8a8fc` | 2.213.241.664 | Apache-2.0 | **ĐÃ DUYỆT** | [HuggingFace](https://huggingface.co/Qwen/Qwen3.5-2B) |
-| **Generator LoRA** | `P70 Adapter` (Continued-LoRA) | `193913014b49e9d1d431a44778903842cb8c98678fdf32bd1f3a45e6c020887c` | 21.823.488 | Apache-2.0 / Team | **ĐÃ DUYỆT** | Huấn luyện từ dữ liệu BTC |
+| **Generator LoRA** | `P70 Adapter` (Continued-LoRA) | `193913014b49e9d1d431a44778903842cb8c98678fdf32bd1f3a45e6c020887c` | 21.823.488 | Apache-2.0 / Team | **ĐÃ DUYỆT** | Train trên data BTC |
 
-### Bảng Kê Ngân Sách Tham Số Toàn Hệ Thống
+### Parameter budget toàn hệ thống
 
 $$\sum \text{Params} = 595.776.512 + 595.776.512 + 2.213.241.664 + 21.823.488 = 3.426.618.176 \approx 3,43\text{B}$$
 
-- **Giới hạn quy định BTC:** $< 4.000.000.000$ tham số.
-- **Biên độ an toàn (Headroom):** $+573.381.824$ tham số ($14,33\%$ margin).
-- **Trạng thái tuân thủ:** **PASS**.
-- *Báo cáo minh bạch về P63 Evidence Selector:* Mô hình lựa chọn căn cứ P63 là một tập hợp cây quyết định phi nơ-ron (`HistGradientBoostingRegressor`) gồm 100 cây và 6.030 nút cây (tree nodes) trên 37 đặc trưng (kích thước file pickle: 387.527 bytes, không sử dụng mạng nơ-ron). Các nút cây/ngưỡng chia không có quy ước quy đổi 1:1 tương đương với trọng số tensor mạng nơ-ron. Ngay cả khi tính tượng trưng toàn bộ 6.030 nút cây như các tham số học độc lập, tổng độ phức tạp của toàn hệ thống vẫn là 3.426.624.206 tham số, tuyệt đối nằm dưới ngưỡng 4 tỷ.
+- **Giới hạn BTC:** $< 4.000.000.000$ params.
+- **Headroom:** $+573.381.824$ params (margin $14,33\%$).
+- **Trạng thái:** **PASS**.
+- *Ghi chú về P63 Evidence Selector:* P63 selector là non-neural tree ensemble (`HistGradientBoostingRegressor`) gồm 100 cây và 6.030 tree nodes trên 37 features (dung lượng file: 387.527 bytes). Cấu trúc nút cây không quy đổi tương đương trọng số tensor neural. Ngay cả khi cộng tượng trưng toàn bộ 6.030 tree nodes, tổng độ phức tạp của pipeline là 3.426.624.206 tham số, vẫn nằm dưới giới hạn 4B của BTC.
 
 ---
 
-## 2. Toàn Bộ Danh Mục Mô Hình & Tài Nguyên NLP Được BTC Phê Duyệt
+## 2. Toàn bộ danh mục model & tài nguyên NLP được BTC phê duyệt
 
-> **Ghi chú về nguồn dữ liệu:** Danh sách dưới đây tổng hợp đầy đủ các dòng mô hình và tài nguyên ngôn ngữ từ văn bản công bố của Ban tổ chức cũng như danh mục đăng ký hợp lệ. Các mục trùng lặp nguyên văn đã được gom nhóm hiển thị và chú thích rõ ràng.
+> **Nguồn danh mục:** Tổng hợp các dòng model và tài nguyên ngôn ngữ từ thông báo của BTC và danh mục đăng ký hợp lệ.
 
-### Nhóm A: Pretrained / Instruction Models (< 4B)
+### Nhóm A: Pretrained / Instruction models (< 4B)
 
-| STT | Tên Mô Hình / Resource | Phân Loại | Giấy Phép / Quyền Sử Dụng | Nguồn Tham Chiếu |
+| STT | Model / Resource | Phân loại | License | Nguồn tham chiếu |
 |---:|---|---|---|---|
 | 1 | `Qwen/Qwen3.5-2B` | Generator (Khuyên dùng) | Apache-2.0 | [HuggingFace](https://huggingface.co/Qwen/Qwen3.5-2B) |
 | 2 | `Qwen/Qwen3-1.7B` | Generator | Apache-2.0 | [HuggingFace](https://huggingface.co/Qwen/Qwen3-1.7B) |
@@ -64,11 +64,11 @@ $$\sum \text{Params} = 595.776.512 + 595.776.512 + 2.213.241.664 + 21.823.488 = 
 | 28 | `jinaai/jina-reranker-v2-base-multilingual` | Neural Reranker | Apache-2.0 | [HuggingFace](https://huggingface.co/jinaai/jina-reranker-v2-base-multilingual) |
 | 29 | `cross-encoder/ms-marco-MiniLM-L-6-v2` | Neural Reranker | Apache-2.0 | [HuggingFace](https://huggingface.co/cross-encoder/ms-marco-MiniLM-L-6-v2) |
 
-### Nhóm B: Công Cụ & Thư Viện NLP Tiếng Việt Hợp Lệ (Rule-Based / Non-Parametric)
+### Nhóm B: Công cụ và thư viện NLP tiếng Việt (Rule-based / Non-parametric)
 
-Các công cụ dưới đây là thư viện tách từ, phân tích ngữ pháp tiếng Việt được phép sử dụng trong giai đoạn tiền xử lý và tách từ cho BM25 (không tính vào ngân sách tham số neural):
+Các thư viện tách từ, POS tagging tiếng Việt được phép dùng trong tiền xử lý và tokenization cho BM25 (không tính vào parameter budget neural):
 
-| STT | Tên Công Cụ / Thư Viện | Vai Trò | Giấy Phép | Nguồn |
+| STT | Tool / Thư viện | Vai trò | License | Nguồn |
 |---:|---|---|---|---|
 | 30 | `underthesea` | Thư viện tách từ & POS tag tiếng Việt | GPL-3.0 | [GitHub](https://github.com/undertheseanlp/underthesea) |
 | 31 | `VnCoreNLP` | Bộ công cụ phân tích ngôn ngữ tiếng Việt | MIT | [GitHub](https://github.com/vncorenlp/VnCoreNLP) |

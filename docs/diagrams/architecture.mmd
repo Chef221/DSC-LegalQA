@@ -1,13 +1,13 @@
 flowchart TD
-    Q["Câu hỏi pháp luật tiếng Việt"] --> SUB1
+    Q["Câu hỏi tiếng Việt"] --> SUB1
 
     subgraph SUB1["1. Hybrid Retrieval"]
         direction TB
-        NORM["Chuẩn hóa NFC & Whitespace"]
-        DENSE["Qwen3-Embedding-0.6B<br/>Dense Embedding (Q2)"]
-        SPARSE["BM25 Okapi<br/>Sparse Retrieval"]
+        NORM["Normalize query (NFC + whitespace)"]
+        DENSE["Qwen3-Embedding-0.6B<br/>Dense retrieval (Q2)"]
+        SPARSE["BM25 Okapi<br/>Sparse retrieval"]
         RRF["Equal RRF (k = 10)"]
-        TOP100["Top 100 Fused Candidates"]
+        TOP100["Top-100 candidates"]
 
         NORM --> DENSE
         NORM --> SPARSE
@@ -18,20 +18,20 @@ flowchart TD
 
     TOP100 --> SUB2
 
-    subgraph SUB2["2. Ranking & Evidence Authority"]
+    subgraph SUB2["2. Ranking & Evidence Selection"]
         direction TB
-        RERANK["Qwen3-Reranker-0.6B<br/>Rerank Prefix 20 (Causal LM Logit Diff)"]
-        TAIL["Giữ nguyên thứ tự Tail 21–100"]
-        P63["P63 Evidence Selector<br/>HistGradientBoosting · 37 features · τ = 0.100"]
-        DECIDE{"Chọn Action"}
-        INCUMBENT["INCUMBENT<br/>(Canonical First 2)"]
-        OVERRIDE["OVERRIDE<br/>(Alternative Pair / Singleton)"]
+        RERANK["Qwen3-Reranker-0.6B<br/>Prefix20 reranking"]
+        TAIL["Preserve tail ranks 21–100"]
+        P63["P63 selector (HGB)<br/>37 features · τ = 0.100"]
+        DECIDE{"ΔMETEOR ≥ 0.100?"}
+        INCUMBENT["INCUMBENT<br/>(Top-2 Điều luật mặc định)"]
+        OVERRIDE["OVERRIDE<br/>(Selected candidate)"]
 
         RERANK --> TAIL
         TAIL --> P63
         P63 --> DECIDE
-        DECIDE -->|pred < 0.100| INCUMBENT
-        DECIDE -->|pred ≥ 0.100| OVERRIDE
+        DECIDE -->|Không| INCUMBENT
+        DECIDE -->|Có| OVERRIDE
     end
 
     INCUMBENT --> SUB3
@@ -39,11 +39,11 @@ flowchart TD
 
     subgraph SUB3["3. Grounded Answer Generation"]
         direction TB
-        PACK["Evidence Packing<br/>[E1] ... [E2] ..."]
-        CTRL["Answer Control Header<br/>[ANSWER_CONTROL] ... [/ANSWER_CONTROL]"]
-        GEN["Qwen3.5-2B + P70 LoRA<br/>(192/192 live adapter binding)"]
-        DECODE["Greedy Decoding<br/>max_new_tokens = 1536"]
-        GUARD["Production Duplicate Guard<br/>Token Suffix Loop Sanitizer"]
+        PACK["Evidence packing<br/>[E1], [E2]..."]
+        CTRL["Answer Control prompt<br/>[ANSWER_CONTROL]"]
+        GEN["Qwen3.5-2B + P70 LoRA<br/>(192/192 adapter binding)"]
+        DECODE["Greedy decoding<br/>max_new_tokens = 1536"]
+        GUARD["Duplicate guard<br/>Token Suffix Loop Sanitizer"]
 
         PACK --> CTRL
         CTRL --> GEN
@@ -51,5 +51,5 @@ flowchart TD
         DECODE --> GUARD
     end
 
-    GUARD --> ANS["Câu trả lời LegalQA"]
-    ANS --> SUBMIT["Submission Builder<br/>submission.json (Official Format)"]
+    GUARD --> ANS["LegalQA answer"]
+    ANS --> SUBMIT["Submission builder<br/>submission.json"]

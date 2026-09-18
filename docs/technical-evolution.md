@@ -1,46 +1,46 @@
-# Quá Trình Phát Triển Kỹ Thuật (Technical Evolution)
+# Quá trình phát triển kỹ thuật (Technical Evolution)
 
-Tài liệu này ghi lại hành trình hoàn thiện kiến trúc của hệ thống LegalQA, tập trung vào các thành phần kỹ thuật thành công và được lưu giữ trong cấu trúc sản xuất cuối cùng (**vNext + P63 + P70**). Mọi nhận định kỹ thuật đều dựa trên mục tiêu kiến trúc hoặc các bằng chứng thực nghiệm đã được kiểm toán.
+Tài liệu này ghi lại quá trình hoàn thiện pipeline qua các giai đoạn thực nghiệm, tập trung vào những cải tiến thành công và được giữ lại trong kiến trúc cuối cùng (**`vNext + P63 + P70`**).
 
 ---
 
-## 1. Khởi Tạo Truy Xuất Kết Hợp (Hybrid Sparse + Dense Retrieval)
-- **Vấn đề ban đầu:** BM25 truyền thống đạt độ chính xác cao trên các từ khóa hành chính cụ thể (như số hiệu văn bản, thuật ngữ chuyên ngành định danh), nhưng độ nhạy giảm khi câu hỏi người dùng diễn đạt bằng ngôn ngữ đời thường. Ngược lại, Dense Retrieval đơn lẻ có xu hướng phản ánh ngữ nghĩa khái quát nhưng dễ bỏ sót các điều khoản có từ khóa định danh cụ thể.
-- **Giải pháp kỹ thuật:** Thiết lập kiến trúc truy xuất song song: nhánh từ khóa sử dụng BM25Okapi ($k_1=1.5, b=0.75$) và nhánh ngữ nghĩa sử dụng mô hình nhúng `Qwen/Qwen3-Embedding-0.6B` với chỉ dẫn ngữ nghĩa `Q2`.
-- **Mục tiêu kiến trúc:** Mục tiêu của kiến trúc hybrid là tăng độ bao phủ ứng viên bằng cách kết hợp tín hiệu lexical và semantic trước bước hợp nhất thứ hạng.
+## 1. Hybrid Retrieval
+- **Vấn đề ban đầu:** BM25 thuần túy cho độ khớp cao trên từ khóa hành chính (số hiệu văn bản, thuật ngữ cố định), nhưng giảm hiệu quả khi câu hỏi diễn đạt theo văn phong tự nhiên. Ngược lại, Dense Retrieval đơn lẻ nắm bắt ngữ nghĩa khái quát tốt nhưng dễ bỏ sót các điều khoản có từ khóa định danh cụ thể.
+- **Giải pháp:** Chạy song song 2 nhánh retrieval: BM25Okapi ($k_1=1.5, b=0.75$) và `Qwen/Qwen3-Embedding-0.6B` với legal instruction $Q2$.
+- **Mục tiêu:** Tăng candidate coverage bằng cách kết hợp cả lexical matching và semantic embedding trước bước merge thứ hạng.
 
-## 2. Hợp Nhất Thứ Hạng Tương Hỗ (Equal Reciprocal Rank Fusion - RRF)
-- **Vấn đề:** Điểm số thô (raw score) của BM25 và độ tương đồng cosin của Dense Retrieval có thang đo khác biệt, không thể cộng trực tiếp mà không làm lệch phân phối điểm số.
-- **Giải pháp kỹ thuật:** Áp dụng thuật toán Reciprocal Rank Fusion (RRF) với hằng số $k = 10$, trọng số đồng đều ($1:1$) và cơ chế phá vỡ thế hòa (tie-break) tất định dựa trên chunk ID.
-- **Mục tiêu kiến trúc:** Tạo ra danh sách Top-100 ứng viên chuẩn hóa, không phụ thuộc vào biên độ điểm số thô của từng mô hình riêng lẻ.
+## 2. Equal RRF
+- **Vấn đề:** Điểm BM25 và cosine similarity của dense retriever nằm trên hai thang đo khác nhau, không thể cộng trực tiếp.
+- **Giải pháp:** Dùng Reciprocal Rank Fusion (RRF) với hằng số $k = 10$, trọng số đồng đều ($1.0 : 1.0$) và tie-break rule dựa trên chunk ID.
+- **Mục tiêu:** Tạo danh sách Top-100 candidates ổn định, độc lập với biên độ raw score của từng model.
 
-## 3. Reranker Neural Trên Prefix 20
-- **Vấn đề:** Các ứng viên ở đầu danh sách RRF đôi khi có sự tương đồng ngữ nghĩa rộng nhưng không giải quyết trực tiếp câu hỏi pháp luật cụ thể.
-- **Giải pháp kỹ thuật:** Triển khai mô hình `Qwen/Qwen3-Reranker-0.6B` tính hiệu số logit trực tiếp trên token `yes` (ID 9693) và `no` (ID 2152) qua định dạng chat template chính thức. Nhằm cân bằng giữa độ trễ và tài nguyên tính toán, hệ thống chỉ sắp xếp lại Prefix 20 ứng viên đầu tiên, đồng thời bảo tồn nguyên vẹn thứ tự các ứng viên tail từ hạng 21 đến 100.
-- **Mục tiêu kiến trúc:** Reranker được dùng để sắp xếp lại 20 ứng viên đầu theo mức độ phù hợp với câu hỏi, trong khi giữ nguyên phần tail.
+## 3. Prefix20 reranking
+- **Vấn đề:** Một số candidates ở đầu danh sách RRF có độ tương đồng ngữ nghĩa chung nhưng chưa giải quyết chính xác câu hỏi pháp lý cụ thể.
+- **Giải pháp:** Dùng `Qwen/Qwen3-Reranker-0.6B` tính logit difference giữa token `yes` (ID 9693) và `no` (ID 2152) trên chat template. Rerank cho 20 candidates đầu tiên (Prefix20); tail 21–100 được giữ nguyên thứ tự.
+- **Mục tiêu:** Tối ưu ranking cho nhóm candidates đầu bảng mà không tốn compute cho toàn bộ 100 items.
 
-## 4. Lựa Chọn Căn Cứ Học Máy (P63 Learned Evidence Selector)
-- **Vấn đề (Evidence Authority Dilemma):** Lấy cố định 2 điều khoản đầu tiên (Canonical First-2) thường đưa vào các điều khoản thừa hoặc bỏ sót ngữ cảnh nếu điều khoản then chốt nằm ở vị trí thứ 3 hoặc thứ 4.
-- **Khảo sát P62:** Đánh giá thực nghiệm nội bộ cho thấy việc can thiệp chọn tập căn cứ có tín hiệu cải thiện rõ ràng:
+## 4. P63 Evidence Selector
+- **Vấn đề (Evidence Authority Dilemma):** Lấy cố định 2 điều khoản đầu tiên (Incumbent First-2) có thể thừa văn bản hoặc thiếu căn cứ quan trọng nếu điều khoản then chốt nằm ở vị trí 3 hoặc 4.
+- **Khảo sát P62:** Đánh giá thực nghiệm nội bộ chứng minh việc can thiệp chọn candidate set đem lại cải thiện rõ ràng:
   - Incumbent METEOR (cố định First-2): **0.4453189045593393**
-  - Selected METEOR (theo bộ chọn): **0.4862964382201936**
-  - Mức chênh lệch ($\Delta$): **+0.04097753366085427** (phân loại kiểm định: `PASS_STRONG_POSITIVE`).
-- **Triển khai P63:** Huấn luyện mô hình hồi quy `HistGradientBoostingRegressor` trên 215.147 hàng ứng viên với 37 đặc trưng hoàn toàn không tham chiếu nhãn (reference-free features).
-- **Quy tắc can thiệp:** Chỉ khi mô hình dự báo mức cải thiện $\Delta \ge 	au$ (với $	au = 0.100$), hệ thống mới kích hoạt quyền ghi đè (`OVERRIDE`), ngược lại giữ nguyên phương án mặc định (`INCUMBENT`).
+  - Selected METEOR (theo selector): **0.4862964382201936**
+  - Chênh lệch ($\Delta$): **+0.04097753366085427** (`PASS_STRONG_POSITIVE`).
+- **Triển khai P63:** Huấn luyện `HistGradientBoostingRegressor` trên 215.147 hàng candidate với 37 reference-free features.
+- **Quy tắc can thiệp:** Khi model dự báo mức cải thiện $\Delta \ge 0.100$ ($\tau = 0.100$), hệ thống kích hoạt `OVERRIDE` sang candidate điểm cao nhất; ngược lại giữ `INCUMBENT` mặc định.
 
-## 5. Đóng Gói Căn Cứ & Kiểm Soát Trả Lời (Answer Control)
-- **Vấn đề:** Mô hình ngôn ngữ dễ sinh nội dung ngoài phạm vi căn cứ được cung cấp hoặc tự suy diễn quy định pháp luật.
-- **Giải pháp kỹ thuật:** Đóng gói căn cứ pháp lý theo các nhãn `[E1]`, `[E2]` có cấu trúc rõ ràng, kết hợp khối hướng dẫn `[ANSWER_CONTROL]` quy định câu trả lời chỉ được xây dựng trên các thông tin có trong ngữ cảnh.
+## 5. Evidence packing và Answer Control
+- **Vấn đề:** Model sinh có thể bị hallucination hoặc diễn giải ngoài căn cứ pháp luật được cung cấp.
+- **Giải pháp:** Format các chunks được chọn theo cấu trúc `[E1]`, `[E2]`, kết hợp block chỉ thị `[ANSWER_CONTROL]` yêu cầu câu trả lời chỉ dựa vào các căn cứ này.
 
-## 6. Thích Ứng Generator P70
-- **Vấn đề:** Mô hình nền tảng `Qwen/Qwen3.5-2B` cần thích ứng với phong cách hành văn văn xuôi pháp luật chuẩn mực của Việt Nam theo định dạng đánh giá của cuộc thi.
-- **Giải pháp kỹ thuật:** Huấn luyện Continued-LoRA (P70) trên 4.247 mẫu huấn luyện từ Folds 1–4, đảm bảo cô lập hoàn toàn không rò rỉ dữ liệu kiểm thử, áp dụng kỹ thuật mask prompt tokens khỏi tính toán loss.
-- **Trạng thái khoa học:** P70 là cấu hình generator được triển khai trong hệ thống nộp bài cuối cùng. Hệ thống hoàn chỉnh sử dụng P70 đạt METEOR **0.486776583** và ROUGE-L **0.530283618** trên bảng xếp hạng chính thức. Đánh giá nội bộ dành riêng cho P70 tại thời điểm đóng hệ thống có trạng thái `INCONCLUSIVE`; quyết định triển khai được thực hiện theo `OPERATOR_OVERRIDE_DEADLINE_2026-09-17`.
+## 6. P70 Continued-LoRA
+- **Vấn đề:** Base model `Qwen/Qwen3.5-2B` cần làm quen với văn phong văn xuôi pháp luật Việt Nam theo tiêu chí chấm điểm của Task 2.
+- **Giải pháp:** Fine-tune Continued-LoRA (P70) trên 4.247 mẫu từ Folds 1–4, tách biệt hoàn toàn với heldout split, áp dụng loss masking trên prompt tokens.
+- **Trạng thái khoa học:** P70 là generator configuration được triển khai trong submission cuối cùng. Toàn bộ pipeline dùng P70 đạt METEOR **0.486776583** và ROUGE-L **0.530283618** trên official leaderboard. Đánh giá nội bộ dành riêng cho P70 tại thời điểm đóng hệ thống có trạng thái `INCONCLUSIVE`; quyết định triển khai được thực hiện theo `OPERATOR_OVERRIDE_DEADLINE_2026-09-17`.
 
-## 7. Bộ Lọc Lặp Vòng Chu Kỳ Sản Xuất (Token Suffix Loop Sanitizer)
-- **Vấn đề:** Hiện tượng sinh lặp vòng vô hạn ở đuôi câu trả lời (suffix repetition loop) trong giải mã tham lam làm suy giảm độ chính xác và chất lượng văn bản.
-- **Giải pháp kỹ thuật:** Tích hợp bộ lọc lặp vòng sản xuất `token_suffix_loop_sanitizer.py` (SHA256: `1d58bb1cac5bef635e39500959b13e77bbd1da3d7c18ec82edeeac5e09713527`, 26.461 bytes) rà soát các chu kỳ token lặp và cắt tỉa chính xác tại điểm bắt đầu vòng lặp.
+## 7. Production duplicate guard
+- **Vấn đề:** Greedy decoding đôi khi gặp hiện tượng suffix repetition loops ở đuôi câu trả lời, làm tụt điểm METEOR và ROUGE-L.
+- **Giải pháp:** Tích hợp `token_suffix_loop_sanitizer.py` (SHA256: `1d58bb1cac5bef635e39500959b13e77bbd1da3d7c18ec82edeeac5e09713527`, 26 KB) để phát hiện chu kỳ token lặp và cắt tỉa đúng vị trí bắt đầu loop.
 
-## 8. Kiến Trúc Hoàn Chỉnh (vNext + P63 + P70)
-- Tích hợp 7 thành phần kỹ thuật trên tạo thành pipeline sản xuất hoàn chỉnh.
-- Kết quả chính thức trên Codabench: **METEOR = 0.486776583**, **ROUGE-L = 0.530283618**.
+## 8. Final production pipeline
+- Tích hợp liên hoàn 7 thành phần trên tạo nên pipeline hoàn chỉnh `vNext + P63 + P70`.
+- Kết quả official leaderboard trên Codabench: **METEOR = 0.486776583**, **ROUGE-L = 0.530283618**.
