@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python requirements
-COPY requirements.txt .
+# Install locked production environment
+COPY requirements-lock.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Download NLTK data for official scorer
@@ -31,6 +31,9 @@ COPY pyproject.toml .
 
 # Install package in editable mode
 RUN pip install --no-cache-dir -e .
+
+# Run preflight verification
+RUN python scripts/verify_artifacts.py && python scripts/verify_environment.py
 
 # Create data and output mounts
 RUN mkdir -p /app/data /app/output

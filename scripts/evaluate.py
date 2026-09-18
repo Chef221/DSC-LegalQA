@@ -1,4 +1,11 @@
 """Evaluate submission predictions against gold references using official competition scorer."""
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+
+
+import sys
+from pathlib import Path
 
 import argparse
 import json

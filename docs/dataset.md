@@ -1,47 +1,47 @@
-# Quy Chuẩn Dữ Liệu và Nhiệm Vụ (Task & Dataset Specification)
+# Dữ Liệu Cuộc Thi UIT DSC 2026 Task 2
 
-## 1. Định Nghĩa Bài Toán (Task Definition)
-
-- **Cuộc thi:** UIT Data Science Challenge 2026.
-- **Bài toán:** Task 2 — Trả lời câu hỏi pháp luật Việt Nam (Legal Question Answering - LegalQA).
-- **Đầu vào (Input):** Một câu hỏi pháp lý bằng tiếng Việt tự nhiên (ví dụ về tranh chấp lao động, bảo hiểm xã hội, tố tụng dân sự, giao thông, hành chính).
-- **Đầu ra (Output):** Câu trả lời dạng văn xuôi bằng tiếng Việt chuẩn mực, có căn cứ và trích dẫn điều luật chính xác dựa trên ngữ cảnh pháp lý được cung cấp.
+Tài liệu này mô tả cấu trúc dữ liệu theo đặc tả chính thức của Ban tổ chức và các đặc điểm quan sát được trong snapshot dữ liệu dự án.
 
 ---
 
-## 2. Cấu Trúc Tập Dữ Liệu Chính Thức Do Ban Tổ Chức Cung Cấp
+## 1. Đặc Tả Dữ Liệu Chính Thức Của Ban Tổ Chức (Official Specification)
 
-Ban tổ chức cung cấp 5 tệp dữ liệu chính thống:
+Theo thông báo chính thức của Ban tổ chức UIT Data Science Challenge 2026 Task 2, bộ dữ liệu bao gồm:
 
-| Tên File | Quy Mô | Cấu Trúc Schema | Mô Tả Vai Trò |
-|---|---:|---|---|
-| `selected-contexts.zip` | 8.532 file | `{id, name, link, passage}` | Toàn bộ kho ngữ cảnh văn bản pháp luật chính thức |
-| `train.json` | 7.000 mẫu | `qid -> {question, answer}` | Tập dữ liệu câu hỏi và câu trả lời tham chiếu để huấn luyện |
-| `warmup.json` | 50 mẫu | `qid -> {question, answer}` | Tập dữ liệu mẫu giai đoạn khởi động |
-| `public-official.json` | 1.000 câu | `qid -> {question}` | Tập đánh giá công khai giai đoạn Public Test |
-| `private-official.json` | Bí mật | `qid -> {question}` | Tập đánh giá bảo mật chung cuộc Private Test |
+1. **`selected-contexts.zip`:** Tệp nén chứa các ngữ cảnh pháp luật chính thức.
+   - Mỗi ngữ cảnh được lưu trong một tệp JSON với cấu trúc:
+     ```json
+     {
+       "id": 1,
+       "name": "ten_van_ban_slug",
+       "link": "https://thuvienphapluat.vn/...",
+       "passage": "Toàn văn hoặc trích đoạn điều khoản pháp luật..."
+     }
+     ```
+   - Trường `id`: Mã định danh số của ngữ cảnh.
+   - Trường `name`: Tên định danh (slug) của văn bản.
+   - Trường `link`: Nguồn gốc xuất xứ (provenance), chỉ dùng đối soát, cấm thu thập (crawl).
+   - Trường `passage`: Nội dung văn bản pháp luật chứa tiêu đề Điều, Khoản, Điểm.
 
-### Chi Tiết Cấu Trúc Ngữ Cảnh Pháp Luật (`context_*.json`)
-
-```json
-{
-  "id": 1234,
-  "name": "nghi-dinh-145-2020-nd-cp-huong-dan-bo-luat-lao-dong",
-  "link": "https://vanbanphapluat.example.gov.vn/...",
-  "passage": "Điều 98. Tiền lương làm thêm giờ, làm việc vào ban đêm..."
-}
-```
-
-- `id`: Định danh ngữ cảnh (số nguyên).
-- `name`: Tên slug của văn bản pháp lý.
-- `link`: Nguồn gốc xuất xứ của văn bản (chỉ dùng định danh, nghiêm cấm crawl dữ liệu).
-- `passage`: Nội dung điều luật/văn bản pháp luật (chứa tiêu đề Điều, Khoản, Điểm và nội dung chi tiết).
+2. **Các tệp câu hỏi & nhãn:**
+   - `train.json`: Tệp dữ liệu câu hỏi và câu trả lời tham chiếu có nhãn.
+   - `warmup.json`: Tệp mẫu dữ liệu giai đoạn khởi động (warm-up).
+   - `public-official.json`: Tập câu hỏi công khai (Public Test) chỉ gồm câu hỏi, không có nhãn câu trả lời hoặc căn cứ.
+   - `private-official.json`: Tập dữ liệu kiểm tra bảo mật (Private Test) dùng để xếp hạng chung cuộc.
 
 ---
 
-## 3. Chính Sách Bảo Mật và Không Đưa Dữ Liệu Thô Lên Git (Fail-Closed Data Policy)
+## 2. Thống Kê Quan Sát Được Trong Snapshot Dữ Liệu Dự Án
 
-Nhằm tuân thủ bản quyền dữ liệu và thể lệ cuộc thi:
-1. **Kho lưu trữ này KHÔNG chứa bất kỳ tệp dữ liệu thô nào của cuộc thi.**
-2. Các tệp `train.json`, `warmup.json`, `public-official.json`, `selected-contexts.zip` đã được đưa vào `.gitignore`.
-3. Người sử dụng muốn tái lập kết quả cần chủ động đặt các tệp dữ liệu hợp lệ vào thư mục `data/` theo hướng dẫn tại [data/README.md](../data/README.md).
+*(Observed in the official dataset snapshot used by this project)*
+
+Trong quá trình tiếp nhận và kiểm toán dữ liệu snapshot từ Ban tổ chức, dự án ghi nhận các số lượng thực tế sau:
+
+- **Số lượng ngữ cảnh (Contexts):** 8.532 tệp context trong `selected-contexts.zip`.
+  - Canonical archive hash SHA256: `9a4441b4537ceb646b15359f470a1da0904e6c92a61e8c4c376c19e17dec395e`.
+  - Có 20 passage rỗng và 1.125 context thiếu name; hệ thống giữ nguyên vẹn không tự ý loại bỏ hay phát minh thêm dữ liệu.
+- **Tập huấn luyện (`train.json`):** 7.000 bản ghi câu hỏi và câu trả lời.
+- **Tập khởi động (`warmup.json`):** 50 bản ghi.
+- **Tập kiểm tra công khai (`public-official.json`):** 1.000 bản ghi câu hỏi pháp luật.
+
+> **Chính Sách Bảo Mật Dữ Liệu:** Toàn bộ các tệp dữ liệu thô (`*.json`, `*.zip`) và dữ liệu giải nén của cuộc thi đều được cấu hình trong `.gitignore` và tuyệt đối **không được đẩy lên GitHub** nhằm tuân thủ quy chế bảo mật của Ban tổ chức.

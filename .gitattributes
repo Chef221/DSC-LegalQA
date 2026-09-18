@@ -8,3 +8,7 @@ artifacts/** -crlf
 *.jpeg binary
 *.bin binary
 *.zip binary
+
+# Ensure exact bit-for-bit SHA preservation for production duplicate guard
+src/dsc_legalqa/postprocess/token_suffix_loop_sanitizer.py -text -crlf
+src/dsc_legalqa/postprocess/token_suffix_loop_sanitizer.py eol=lf

@@ -1,50 +1,76 @@
 # Hướng Dẫn Tái Lập Thực Nghiệm (Reproduction Guide)
 
-Hệ thống hỗ trợ 2 quy trình tái lập thực nghiệm rõ ràng:
+Tài liệu này cung cấp các quy trình tái lập hệ thống sản xuất **FROZEN_P3_G2_VNEXT_P63_P70** cho bài toán UIT Data Science Challenge 2026 Task 2.
 
 ---
 
-## Quy Trình 1: Tái Lập Nhanh Bằng Trọng Số Đóng Băng (Quick Reproduction)
+## 1. Xác Minh Môi Trường Thực Thi & Kiểm Tra Tạo Tác (Preflight Checks)
 
-Mục tiêu: Chạy pipeline suy luận sản xuất hoàn chỉnh bằng cách sử dụng các trọng số và mô hình đã đóng băng đi kèm repo.
+Trước khi thực hiện bất kỳ quy trình nào, hãy chạy hai công cụ xác minh tất định sau:
 
-### Bước 1: Chuẩn bị môi trường
 ```bash
-git clone https://github.com/Chef221/DSC-LegalQA.git
-cd DSC-LegalQA
-pip install -e .
-```
+# 1. Xác minh tính toàn vẹn của các tệp mô hình và mã nguồn đóng băng
+python scripts/verify_artifacts.py
 
-### Bước 2: Cung cấp dữ liệu cuộc thi
-Đặt file ngữ cảnh chính thức vào `data/selected-contexts/` theo hướng dẫn tại `data/README.md`.
-
-### Bước 3: Chuẩn bị phân đoạn điều luật
-```bash
-python scripts/prepare_data.py --data_dir data/selected-contexts/ --output_path data/chunks.jsonl
-```
-
-### Bước 4: Chạy suy luận sinh câu trả lời
-```bash
-python scripts/run_inference.py --input_questions examples/sample_question.json --output_submission submission.json
-```
-
-### Bước 5: Đóng gói bài nộp
-```bash
-python scripts/build_submission.py --input_json submission.json --output_zip submission.zip
+# 2. Xác minh các gói thư viện tương thích với môi trường P70
+python scripts/verify_environment.py
 ```
 
 ---
 
-## Quy Trình 2: Huấn Luyện Lại Từ Đầu (Full Reproduction)
+## 2. Quy Trình Tái Lập Suy Luận Sản Xuất (Production Inference Reproduction)
 
-Mục tiêu: Huấn luyện lại bộ chọn căn cứ P63 và mô hình sinh LoRA P70 từ dữ liệu huấn luyện chính thức của cuộc thi.
+Để chạy lại toàn bộ quy trình suy luận từ câu hỏi đầu vào đến tệp kết quả `submission.json`:
 
-### 1. Huấn luyện lại bộ chọn P63:
-```bash
-python scripts/train_selector.py --output_dir artifacts/p63_selector/
+### Bước 1: Chuẩn bị dữ liệu cuộc thi
+Đặt tệp câu hỏi (ví dụ `public-official.json`) và tệp ngữ cảnh pháp lý đã giải nén hoặc tệp chunks đã xử lý:
+```text
+data/
+  ├── public-official.json
+  └── chunks.jsonl
 ```
 
-### 2. Huấn luyện lại mô hình sinh P70 LoRA:
+### Bước 2: Chạy bộ suy luận hoàn chỉnh
 ```bash
-python scripts/train_p70_lora.py --epochs 1 --batch_size 1 --output_dir artifacts/p70_adapter_retrained/
+python scripts/run_inference.py \
+    --input_questions data/public-official.json \
+    --chunks_path data/chunks.jsonl \
+    --output_submission submission.json \
+    --device cuda
+```
+
+Hệ thống sẽ thực hiện theo thứ tự:
+1. Chuẩn hóa câu hỏi tiếng Việt (NFC + chuẩn hóa khoảng trắng).
+2. Lập chỉ mục & truy xuất BM25 (Top 100) song song với Qwen3 Dense Embedding (Q2 instruction, Top 100).
+3. Hợp nhất thứ hạng tương hỗ Equal RRF ($k=10$) chọn Top 100 ứng viên.
+4. Rerank Prefix 20 ứng viên bằng `Qwen/Qwen3-Reranker-0.6B` (hiệu logit yes/no), giữ nguyên tail 21–100.
+5. Tạo tập ứng viên và trích xuất 37 đặc trưng không tham chiếu cho P63 Selector.
+6. Mô hình `HistGradientBoostingRegressor` đưa ra quyết định `INCUMBENT` hoặc `OVERRIDE` dựa trên $\tau = 0.100$.
+7. Đóng gói căn cứ pháp luật theo chuẩn `[E1]`, `[E2]` kết hợp khối `[ANSWER_CONTROL]`.
+8. Sinh câu trả lời qua `Qwen/Qwen3.5-2B` + P70 LoRA với giải mã tham lam (`max_new_tokens=1536`).
+9. Bộ lọc lặp vòng `token_suffix_loop_sanitizer` xử lý các chu kỳ lặp nếu có.
+10. Xuất tệp `submission.json` chuẩn cấu trúc Ban tổ chức yêu cầu.
+
+---
+
+## 3. Quy Trình Tái Lập Huấn Luyện (Training Reproduction)
+
+### A. Huấn luyện lại bộ lựa chọn căn cứ P63
+```bash
+python scripts/train_selector.py \
+    --features_path data/p63_training_features.npz \
+    --output_dir artifacts/p63_selector
+```
+*Lưu ý:* Tập đặc trưng `p63_training_features.npz` chứa 215.147 hàng ứng viên từ 5.300 câu hỏi huấn luyện. Nếu tệp không tồn tại, script sẽ dừng có kiểm soát (`fail-closed`), tuyệt đối không tự ý sinh dữ liệu ngẫu nhiên.
+
+### B. Huấn luyện lại Continued-LoRA P70
+```bash
+python scripts/train_p70_lora.py \
+    --train_file data/P70_TRAIN_ROWS.jsonl \
+    --heldout_file data/P70_HELDOUT500_ROWS.jsonl \
+    --p2_adapter_dir artifacts/p2_adapter \
+    --output_dir artifacts/p70_trained_adapter \
+    --epochs 1 \
+    --lr 1e-4 \
+    --grad_accum 16
 ```

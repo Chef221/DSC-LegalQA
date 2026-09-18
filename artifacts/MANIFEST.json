@@ -1,0 +1,42 @@
+[
+  {
+    "path": "artifacts/p63_selector/P63_DEPLOYMENT_MODEL.pkl",
+    "sha256": "1654bf0184f6be7f2bc8a715e4eba5f6d47ebc280f10481fac7a1b09bc424c38",
+    "role": "P63 Learned Evidence Selector (HistGradientBoostingRegressor)",
+    "provenance": "FROZEN_P3_G2_VNEXT_P63_P70 trained on 215,147 candidate rows across 5,300 QIDs",
+    "required_for_quick_reproduction": true,
+    "bytes": 387527
+  },
+  {
+    "path": "artifacts/p63_selector/P63_DEPLOYMENT_MODEL_METADATA.json",
+    "sha256": "ef59ed7efe1a47edf76b417dd53660eb15bfb52fc2a7bc314bb3dd58ca0e27ac",
+    "role": "P63 Model Deployment Metadata (tau=0.100, 37 features)",
+    "provenance": "Official P63 freeze metadata",
+    "required_for_quick_reproduction": true,
+    "bytes": 778
+  },
+  {
+    "path": "artifacts/p70_adapter/adapter_model.safetensors",
+    "sha256": "193913014b49e9d1d431a44778903842cb8c98678fdf32bd1f3a45e6c020887c",
+    "role": "P70 Generator Continued-LoRA Adapter Weights (21,823,488 params, 192 tensors)",
+    "provenance": "Trained on 4,247 train rows from Folds 1-4 with zero heldout leakage",
+    "required_for_quick_reproduction": true,
+    "bytes": 87322136
+  },
+  {
+    "path": "artifacts/p70_adapter/adapter_config.json",
+    "sha256": "2761928c3f17aa894bd2e7793db0d00a2e7c1b0821a7d864dc7bf411dc603f37",
+    "role": "P70 LoRA Adapter Configuration",
+    "provenance": "Official P70 LoRA configuration",
+    "required_for_quick_reproduction": true,
+    "bytes": 1148
+  },
+  {
+    "path": "src/dsc_legalqa/postprocess/token_suffix_loop_sanitizer.py",
+    "sha256": "1d58bb1cac5bef635e39500959b13e77bbd1da3d7c18ec82edeeac5e09713527",
+    "role": "Production Duplicate Loop Guard (Token Suffix Loop Sanitizer)",
+    "provenance": "Exact historical production sanitizer core (26,461 bytes)",
+    "required_for_quick_reproduction": true,
+    "bytes": 26461
+  }
+]
