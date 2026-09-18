@@ -1,0 +1,13 @@
+# Enforce exact bit-for-bit preservation of line endings across all platforms
+* text=auto eol=lf
+
+# Explicit binary & unmutated artifacts
+artifacts/** -crlf
+artifacts/** text eol=lf
+*.safetensors binary
+*.pkl binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.bin binary
+*.zip binary
